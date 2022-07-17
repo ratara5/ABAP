@@ -1,0 +1,17 @@
+*&---------------------------------------------------------------------*
+*&  Include           Y_ALV_MARA_USER_SEL1
+*&---------------------------------------------------------------------*
+
+TABLES mara.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+  SELECT-OPTIONS so_matnr FOR mara-matnr.
+  "PARAMETERS: p_matnr TYPE s_matnr.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-002.
+PARAMETERS: p_list RADIOBUTTON GROUP alv,
+            p_grid RADIOBUTTON GROUP alv,
+            p_hier RADIOBUTTON GROUP alv.
+SELECTION-SCREEN END OF BLOCK b2.

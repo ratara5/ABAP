@@ -1,0 +1,29 @@
+*&---------------------------------------------------------------------*
+*& Report  Y_ALV_MARA_USER
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT y_alv_mara_user.
+
+
+INCLUDE y_alv_mara_user_top.
+INCLUDE y_alv_mara_user_sel1.
+INCLUDE y_alv_mara_user_f01.
+
+START-OF-SELECTION.
+  PERFORM get_data.
+  PERFORM build_field_cat.
+  PERFORM build_layout.
+  PERFORM add_events.
+
+  CASE abap_true.
+    WHEN p_list.
+      PERFORM display_alv_list.
+    WHEN p_grid.
+      PERFORM display_alv_grid.
+    WHEN p_hier.
+      perform display_alv_hier.
+  ENDCASE.

@@ -1,0 +1,32 @@
+report z_metod_ins_stat.
+
+class tarifa definition.
+    public section.
+        *métodos de instancia
+        methods set_tar_empleado importing i_tarifa type i.
+        methods visualizar_tarifa.
+        *métodos estáticos
+        class methods set_tar_base importing i_tarifa type i. "este i_tarifa no tiene nada que ver con el de arriba., se usa cada uno internamente.
+	
+    private section.
+        data tar_empleado type i.
+        *métodos estáticos solo acceden a atributos estáticos, los de instancia pueden acceder a los de instancia y alos estáticos.
+        class data tar_base type i.
+    
+endclass.
+
+class tarifa implementation.
+    method set_tar_empleado.
+        tar_empleado=i_tarifa.
+    endmethod.
+    method visualizar_tarifa.
+        write: / 'tarifa base=', tar_base,
+               / 'tarifa empleado=', tar_empleado.
+    endmethod.
+    method set_tar_base.
+        tar_base=i_tarifa. 
+    endmethod.
+endclass.
+
+start-of-selection.
+

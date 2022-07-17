@@ -1,0 +1,411 @@
+*&---------------------------------------------------------------------*
+*&  Include           Y_ALV_MARA_USER_F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  GET_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM get_data .
+
+  IF p_hier EQ abap_false.
+    SELECT matnr ersda ernam laeda aenam vpsta
+      FROM mara
+        INTO TABLE gt_mara
+          WHERE matnr IN so_matnr.
+  ELSE.
+    SELECT * FROM marc INTO TABLE gt_header WHERE matnr in so_matnr.
+    SELECT * FROM mara INTO TABLE gt_items WHERE matnr in so_matnr.
+  ENDIF.
+ENDFORM.                    " GET_DATA
+*&---------------------------------------------------------------------*
+*&      Form  BUILD_FIELD_CAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM build_field_cat .
+  DATA ls_fieldcat TYPE slis_fieldcat_alv.
+
+  IF p_list = abap_true OR p_grid = abap_true.
+
+    ls_fieldcat-fieldname = 'MATNR'.
+    ls_fieldcat-seltext_l = 'Material number'.
+    ls_fieldcat-key = abap_true.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+    CLEAR ls_fieldcat.
+    ls_fieldcat-fieldname = 'ERSDA'.
+    ls_fieldcat-seltext_l = 'Created on'.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+    CLEAR ls_fieldcat.
+    ls_fieldcat-fieldname = 'ERNAM'.
+    ls_fieldcat-seltext_l = 'Name of Person who Created the Object'.
+    ls_fieldcat-outputlen = 20.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+    CLEAR ls_fieldcat.
+    ls_fieldcat-fieldname = 'LAEDA'.
+    ls_fieldcat-seltext_l = 'Date of Last Change'.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+    CLEAR ls_fieldcat.
+    ls_fieldcat-fieldname = 'AENAM'.
+    ls_fieldcat-seltext_l = 'Name of Person Who Changed Object'.
+    ls_fieldcat-outputlen = 20.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+    CLEAR ls_fieldcat.
+    ls_fieldcat-fieldname = 'VPSTA'.
+    ls_fieldcat-seltext_l = 'Maintenance status of complete material'.
+    ls_fieldcat-outputlen = 25.
+    APPEND ls_fieldcat TO gt_fieldcat.
+
+  ELSE.
+    PERFORM build_field_cat_hier USING sy-repid
+          'GT_HEADER'
+          'MARC'
+           CHANGING gt_fieldcat.
+    PERFORM build_field_cat_hier USING sy-repid
+          'GT_ITEMS'
+          'MARA'
+          CHANGING gt_fieldcat.
+
+  ENDIF.
+ENDFORM.                    " BUILD_FIELD_CAT
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_ALV_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM display_alv_list .
+  CALL FUNCTION 'REUSE_ALV_LIST_DISPLAY'
+   EXPORTING
+*   I_INTERFACE_CHECK              = ' '
+*   I_BYPASSING_BUFFER             =
+*   I_BUFFER_ACTIVE                = ' '
+     i_callback_program             = sy-repid
+*   I_CALLBACK_PF_STATUS_SET       = ' '
+*   I_CALLBACK_USER_COMMAND        = ' '
+*   I_STRUCTURE_NAME               =
+*   IS_LAYOUT                      =
+     it_fieldcat                    = gt_fieldcat
+*   IT_EXCLUDING                   =
+*   IT_SPECIAL_GROUPS              =
+*   IT_SORT                        =
+*   IT_FILTER                      =
+*   IS_SEL_HIDE                    =
+*   I_DEFAULT                      = 'X'
+*   I_SAVE                         = ' '
+*   IS_VARIANT                     =
+    it_events                      = gt_events
+*   IT_EVENT_EXIT                  =
+*   IS_PRINT                       =
+*   IS_REPREP_ID                   =
+*   I_SCREEN_START_COLUMN          = 0
+*   I_SCREEN_START_LINE            = 0
+*   I_SCREEN_END_COLUMN            = 0
+*   I_SCREEN_END_LINE              = 0
+*   IR_SALV_LIST_ADAPTER           =
+*   IT_EXCEPT_QINFO                =
+*   I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER        =
+*   ES_EXIT_CAUSED_BY_USER         =
+    TABLES
+      t_outtab                       = gt_mara
+   EXCEPTIONS
+     program_error                  = 1
+     OTHERS                         = 2
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.                    " DISPLAY_ALV_LIST
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_ALV_GRID
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM  display_alv_grid .
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+   EXPORTING
+*     I_INTERFACE_CHECK                 = ' '
+*     I_BYPASSING_BUFFER                = ' '
+*     I_BUFFER_ACTIVE                   = ' '
+      i_callback_program                = sy-repid
+      i_callback_pf_status_set          = 'SET_PF_STATUS'
+      i_callback_user_command           = 'USER_COMMAND'
+      i_callback_top_of_page            = 'TOP_OF_PAGE'
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME                  =
+*     I_BACKGROUND_ID                   = ' '
+*     I_GRID_TITLE                      =
+*     I_GRID_SETTINGS                   =
+      is_layout                         = gs_layout
+      it_fieldcat                       = gt_fieldcat
+*     IT_EXCLUDING                      =
+*     IT_SPECIAL_GROUPS                 =
+*     IT_SORT                           =
+*     IT_FILTER                         =
+*     IS_SEL_HIDE                       =
+*     I_DEFAULT                         = 'X'
+*     I_SAVE                            = ' '
+*     IS_VARIANT                        =
+*     IT_EVENTS                         =
+*     IT_EVENT_EXIT                     =
+*     IS_PRINT                          =
+*     IS_REPREP_ID                      =
+*     I_SCREEN_START_COLUMN             = 0
+*     I_SCREEN_START_LINE               = 0
+*     I_SCREEN_END_COLUMN               = 0
+*     I_SCREEN_END_LINE                 = 0
+*     I_HTML_HEIGHT_TOP                 = 0
+*     I_HTML_HEIGHT_END                 = 0
+*     IT_ALV_GRAPHICS                   =
+*     IT_HYPERLINK                      =
+*     IT_ADD_FIELDCAT                   =
+*     IT_EXCEPT_QINFO                   =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*   IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER           =
+*     ES_EXIT_CAUSED_BY_USER            =
+    TABLES
+      t_outtab                          = gt_mara
+   EXCEPTIONS
+     program_error                     = 1
+     OTHERS                            = 2
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+ENDFORM.                    " DISPLAY_ALV_GRID
+*&---------------------------------------------------------------------*
+*&      Form  BUILD_LAYOUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM build_layout .
+  gs_layout-zebra = abap_true.
+  gs_layout-edit = abap_true.
+
+
+
+ENDFORM.                    " BUILD_LAYOUT
+*&---------------------------------------------------------------------*
+*&      Form  user_command
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->PV_UCOMM     text
+*      -->PS_SELFIELD  text
+*----------------------------------------------------------------------*
+FORM user_command  USING pv_ucomm LIKE sy-ucomm
+                           ps_selfield TYPE slis_selfield.
+
+  DATA: ls_mara TYPE gty_mara,
+        lv_days TYPE string,
+        lv_mensaje TYPE string.
+
+  IF pv_ucomm = '&IC1'.
+    READ TABLE gt_mara INTO ls_mara INDEX ps_selfield-tabindex.
+    IF sy-subrc EQ 0.
+      lv_days = ls_mara-laeda - ls_mara-ersda.
+      lv_mensaje = lv_days.
+      CONCATENATE 'Para el material seleccionado han pasado ' lv_mensaje 'días desde el último cambio' INTO lv_mensaje RESPECTING BLANKS.
+      MESSAGE lv_mensaje TYPE 'I'.
+    ENDIF.
+  ENDIF.
+
+  IF pv_ucomm = '&INF'.
+    READ TABLE gt_mara INTO ls_mara INDEX ps_selfield-tabindex.
+    CONCATENATE 'Más información sobre el material ' ls_mara-matnr INTO lv_mensaje RESPECTING BLANKS.
+    MESSAGE lv_mensaje TYPE 'I'.
+
+  ENDIF.
+
+
+ENDFORM.                    "user_command
+
+*&---------------------------------------------------------------------*
+*&      Form  set_pf_status
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*      -->RT_EXTAB   text
+*----------------------------------------------------------------------*
+FORM set_pf_status USING rt_extab TYPE slis_t_extab.
+
+  SET PF-STATUS 'ALVMARA_STATUS'.
+
+ENDFORM.                    "set_pf_status
+*&---------------------------------------------------------------------*
+*&      Form  ADD_EVENTS
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM add_events .
+  DATA ls_events TYPE slis_alv_event.
+
+  ls_events-name = 'TOP_OF_PAGE'.
+  ls_events-form = 'TOP_OF_PAGE'.
+  APPEND ls_events TO gt_events.
+
+ENDFORM.                    " ADD_EVENTS
+
+*&---------------------------------------------------------------------*
+*&      Form  HEADER
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM top_of_page.
+
+  DATA: lt_commentary TYPE slis_t_listheader,
+        ls_commentary TYPE slis_listheader.
+
+  CASE abap_true.
+    WHEN p_list.
+      WRITE: / 'Hora:', sy-uzeit ENVIRONMENT TIME FORMAT,
+             / 'Usuario:', sy-uname.
+    WHEN p_grid.
+      ls_commentary-typ = 'H'.
+      ls_commentary-info = 'Materials'.
+      APPEND ls_commentary TO lt_commentary.
+
+      ls_commentary-typ = 'S'.
+      CONCATENATE 'User: ' sy-uname INTO ls_commentary-info RESPECTING BLANKS.
+      APPEND ls_commentary TO lt_commentary.
+
+      ls_commentary-typ = 'A'.
+      CONCATENATE 'User: ' sy-uname INTO ls_commentary-info RESPECTING BLANKS.
+      APPEND ls_commentary TO lt_commentary.
+
+      CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+        EXPORTING
+          it_list_commentary = lt_commentary.
+  ENDCASE.
+ENDFORM.                    "HEADER
+*&---------------------------------------------------------------------*
+*&      Form  BUILD_FIELD_CAT_HIER (SE Muestra MARC como la cabecera de MARA.
+*&      A diferencia de las otras dos ALV que muestran solo MARA)
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM build_field_cat_hier USING pv_program_name TYPE syrepid
+                                pv_internal_tabname TYPE slis_tabname
+                                pv_structure_name TYPE tabname
+                          CHANGING ct_fieldcat TYPE slis_t_fieldcat_alv.
+  CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_program_name         = pv_program_name
+      i_internal_tabname     = pv_internal_tabname
+      i_structure_name       = pv_structure_name
+*     I_CLIENT_NEVER_DISPLAY = 'X'
+*     I_INCLNAME             =
+*     I_BYPASSING_BUFFER     =
+*     I_BUFFER_ACTIVE        =
+    CHANGING
+      ct_fieldcat            = ct_fieldcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+    MESSAGE 'error on fieldcat merge' TYPE 'e'.
+  ENDIF.
+
+ENDFORM.                    " BUILD_FIELD_CAT_HIER
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_ALV_HIER
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM display_alv_hier .
+
+  DATA ls_keyinfo TYPE  slis_keyinfo_alv.
+
+  ls_keyinfo-header01 = 'MANDT'.
+  ls_keyinfo-item01 = 'MANDT'.
+
+  ls_keyinfo-header02 = 'MATNR'.
+  ls_keyinfo-item02 = 'MATNR'.
+
+
+  CALL FUNCTION 'REUSE_ALV_HIERSEQ_LIST_DISPLAY'
+    EXPORTING
+*     I_INTERFACE_CHECK              = ' '
+*     I_CALLBACK_PROGRAM             =
+*     I_CALLBACK_PF_STATUS_SET       = ' '
+*     I_CALLBACK_USER_COMMAND        = ' '
+*     IS_LAYOUT                      =
+      IT_FIELDCAT                    = gt_fieldcat
+*     IT_EXCLUDING                   =
+*     IT_SPECIAL_GROUPS              =
+*     IT_SORT                        =
+*     IT_FILTER                      =
+*     IS_SEL_HIDE                    =
+*     I_SCREEN_START_COLUMN          = 0
+*     I_SCREEN_START_LINE            = 0
+*     I_SCREEN_END_COLUMN            = 0
+*     I_SCREEN_END_LINE              = 0
+*     I_DEFAULT                      = 'X'
+*     I_SAVE                         = ' '
+*     IS_VARIANT                     =
+*     IT_EVENTS                      =
+*     IT_EVENT_EXIT                  =
+      i_tabname_header               = 'GT_HEADER'
+      i_tabname_item                 = 'GT_ITEMS'
+*     I_STRUCTURE_NAME_HEADER        =
+*     I_STRUCTURE_NAME_ITEM          =
+      is_keyinfo                     = ls_keyinfo
+*     IS_PRINT                       =
+*     IS_REPREP_ID                   =
+*     I_BYPASSING_BUFFER             =
+*     I_BUFFER_ACTIVE                =
+*     IR_SALV_HIERSEQ_ADAPTER        =
+*     IT_EXCEPT_QINFO                =
+*     I_SUPPRESS_EMPTY_DATA          = ABAP_FALSE
+*   IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER        =
+*     ES_EXIT_CAUSED_BY_USER         =
+    TABLES
+      t_outtab_header                = gt_header
+      t_outtab_item                  = gt_items
+   EXCEPTIONS
+     program_error                  = 1
+     OTHERS                         = 2.
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+    MESSAGE 'Error on HIER_LIST_DISPLAY' TYPE 'E'.
+  ENDIF.
+
+
+ENDFORM.                    " DISPLAY_ALV_HIER

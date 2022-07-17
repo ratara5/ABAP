@@ -1,0 +1,19 @@
+report z_alv_mf_gvaler.
+
+include: z_alv_mf_gvaler_top, "contiene type-pools slis y declaración de gt_flights y gt_fieldcat
+         z_alv_mf_gvaler_sel, "declarar estructura o bloques de la pantalla selección
+	 z_alv_mf_gvaler_f01. "guardar subrutinas y lógica
+
+
+start-of-selection.
+
+perform get_data. "va en _f01 Contiene select carrid connid cityto from spfli into table gt_fligths where carrid eq p_carr. "recordar activar todo el programa
+
+perform build_field_cat. "va en _f01 Contiene data ls_fieldcat type slis_fieldcat_alv. y luego indicar catálogo de campos
+
+case abap_true.
+    when p_list.
+	perform display_alv_list. "Va en f01 Llama a la función 'REUSE_ALV_LIST_DISPLAY' pasar la tabla interna donde tenemos los datos, poner exporting, deseable capturar las excepciones. Luego if sy_subrc
+    when p_grid.
+    when p_hier.
+endcase.

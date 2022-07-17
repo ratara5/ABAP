@@ -1,0 +1,51 @@
+report z_metodos_poo_user.
+
+*Métodos de instancia y estáticos
+
+class tarifa definition.
+    public section.
+      class-methods set_tar_base importing i_tarifa type i.
+      methods set_tar_empleado importing i_tarifa type i.
+      methods visualizar_tarifa.
+    private section.
+      class-data tar_base type i.
+      data tar_empleado type i.
+ 
+endclass.
+
+class tarifa implementation.
+   method ser_tar_base.
+       tar_base = i_tarifa.
+   endmethod. 
+   
+   method set_tar_empleado.
+       tar_empleado = i_tarifa.
+   endmethod.
+
+   method visualizar_tarifa.
+      write: / 'Tarifa base=', tar_base,
+             / 'Tarifa empleado=', tar_empleado.
+   endmethod.
+endclass.
+
+
+start-of-selection.
+
+data go_tarifa type ref to tarifa. 
+
+*tarifa=>set_tar_base( i_tarifa = 20 ).
+
+call_method tarifa=>set_tar_base
+   exporting 
+      i_tarifa = 20.
+
+create object go_tarifa.
+
+go_tarifa->set_tar_empleado( i_tarifa = 30 ).
+
+go_tarifa->visualizar_tarifa( ).
+
+
+
+
+

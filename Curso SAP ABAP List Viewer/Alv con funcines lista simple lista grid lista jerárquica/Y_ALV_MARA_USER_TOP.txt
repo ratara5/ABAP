@@ -1,0 +1,21 @@
+*&---------------------------------------------------------------------*
+*&  Include           Y_ALV_MARA_USER_TOP
+*&---------------------------------------------------------------------*
+"TYPE-POOL slis. "No es obligatoria en nuevas versiones SAP
+
+TYPES: BEGIN OF gty_mara,
+        matnr TYPE s_matnr,
+        ersda TYPE ersda,
+        ernam TYPE ernam,
+        laeda TYPE laeda,
+        aenam TYPE aenam,
+        vpsta TYPE vpsta,
+        END OF gty_mara.
+
+DATA: gt_mara  TYPE TABLE OF gty_mara,
+      gt_fieldcat TYPE slis_t_fieldcat_alv,
+      gs_layout TYPE slis_layout_alv,
+      gt_events TYPE slis_t_event.
+
+DATA: gt_header TYPE TABLE OF marc,
+      gt_items TYPE TABLE OF mara.

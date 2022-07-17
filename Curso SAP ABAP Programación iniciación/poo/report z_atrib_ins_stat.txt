@@ -1,0 +1,29 @@
+report z_atrib_ins_stat.
+
+class factura definition.
+    public section.
+        data proveedor type string.
+        class data fecha_pago type d.
+endclass.
+
+
+start-of-selection.
+data:    go_factura1 type ref to factura.
+         go_factura2 type ref to factura.
+
+create object: go_factura1,
+	       go_factura2.
+
+go_factura1->proveedor='Dell'.
+go_factura2->proveedor='HP'.
+
+write: /go_factura1->proveedor,
+       /go_factura2->proveedor.
+skip: 2.
+
+* atributo estático: válido para todas las instancias de la clase.
+
+factura=>fecha_pago='20220515'
+
+write: /go_factura1=>fecha_pago.
+       /go_factura2=>fecha_pago.

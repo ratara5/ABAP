@@ -1,0 +1,42 @@
+report z_class_poo
+
+class alumno definition.
+    public section.
+        methods set_nombre importing i_nombre type string.
+        methods get_nombre exporting e_nombre type string.
+    protected section.
+
+    private section.
+        data nombre type string.
+endclass.
+
+class alumno implementation.
+    method set_nombre.
+	nombre=i_nombre.
+    endmethod.
+    method get_nombre.
+	e_nombre=nombre.
+    endmethod.
+endclass.
+
+
+start-of-selection.
+
+data: go_alumno type ref to alumno.
+      gv_nombre type string.
+
+create object go_alumno.
+
+call method go_alumno->set_nombre
+   exporting 
+      i_nombre='Alberto'.
+
+call method go_alumno->get_nombre
+   importing
+      e_nombre=gv_nombre
+
+write gv_nombre.
+
+
+
+

@@ -1,0 +1,28 @@
+report z_constructor_poo_user.
+
+*Constructores en ABAP
+
+class empleado definition.
+    public section.
+        methods constructor importing i_nombre type string. 
+        class-methods class_constructor.
+endclass.
+
+class empleado implementation.
+    method constructor.
+        write: / 'Constructor de instancia', i_nombre.
+    endmethod.
+
+    method class_constructor.
+        write: / 'Constructor estático'.
+    endmethod.
+endclass.
+
+
+start-of-selection.
+
+data: go_empleado_1 type ref to empleado,
+      go_empleado_2 type ref to empleado.
+
+create object: go_empleado_1 exporting i_nombre = 'Carlos',
+               go_empleado_2 exporting i_nombre = 'Alberto'.
